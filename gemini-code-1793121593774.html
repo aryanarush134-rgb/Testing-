@@ -1,0 +1,2930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends Portal</title>
+    <!-- Cropper.js CSS for circular cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-dark: #070913;
+            --card-bg: rgba(10, 14, 28, 0.88);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --accent-cyan: #38bdf8;
+            --accent-purple: #a855f7;
+            --accent-green: #34d399;
+            --accent-red: #fb7185;
+            --accent-gold: #fbbf24;
+            --accent-pink: #f472b6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                linear-gradient(to bottom, rgba(7, 9, 19, 0.65), rgba(7, 9, 19, 0.85)),
+                url('https://kommodo.ai/i/3TKB9vXmUqrd9ekQCVEN');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-x: hidden;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        #snow-bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            display: none;
+            pointer-events: none;
+            transform: translateZ(0);
+        }
+
+        .top-navbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            position: relative;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .navbar-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .navbar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #38bdf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .navbar-menu-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 1001;
+            display: none !important;
+        }
+
+        .navbar-menu-btn.logged-in {
+            display: block !important;
+        }
+
+        .nav-drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            will-change: opacity;
+        }
+
+        .nav-drawer-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .nav-drawer {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(11, 16, 30, 0.98);
+            border-left: 1px solid var(--card-border);
+            z-index: 1001;
+            padding: 2rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+            transform: translateX(0);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+            overflow-y: auto;
+        }
+
+        .nav-drawer.active {
+            transform: translateX(-300px);
+        }
+
+        .nav-drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-drawer-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+        }
+
+        .drawer-close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .drawer-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+            will-change: transform;
+        }
+
+        .drawer-link:hover {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateX(-3px);
+        }
+
+        .hero-banner-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0.25rem;
+            margin-bottom: 0.5rem;
+            z-index: 5;
+        }
+
+        .main-top-logo {
+            width: 210px;
+            max-width: 75vw;
+            height: auto;
+            mix-blend-mode: lighten;
+            filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.6));
+        }
+
+        .main-card-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 0 1rem 1.5rem 1rem;
+            z-index: 10;
+            position: relative;
+        }
+
+        /* HARDWARE ACCELERATED CARDS FOR NO-LAG RENDERING */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 1.5rem 1.5rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            text-align: center;
+            position: absolute;
+            opacity: 0;
+            visibility: hidden;
+            transform: translate3d(0, 15px, 0) scale(0.98);
+            pointer-events: none;
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                        visibility 0.25s;
+            will-change: transform, opacity, visibility;
+            backface-visibility: hidden;
+        }
+
+        .card.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate3d(0, 0, 0) scale(1);
+            pointer-events: all;
+            position: relative;
+        }
+
+        .card-full {
+            max-width: 540px;
+        }
+
+        .card-chat-fullscreen {
+            position: fixed !important;
+            top: 5vh !important;
+            left: 50% !important;
+            transform: translate3d(-50%, 0, 0) !important;
+            width: 90vw !important;
+            max-width: 440px !important;
+            height: 88vh !important;
+            border-radius: 20px !important;
+            border: 1px solid var(--card-border) !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            z-index: 9999 !important;
+            background: #0b141a !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9) !important;
+            overflow: hidden !important;
+        }
+
+        .card-reels-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            border-radius: 0 !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            z-index: 9999 !important;
+            background: #000 !important;
+        }
+
+        .welcome-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.35rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: #c084fc;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        .gradient-heading {
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #38bdf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .creator-heading {
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1.25rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            padding: 1rem 0;
+            margin-bottom: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .feature-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .feature-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 15%;
+            height: 70%;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .feature-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(56, 189, 248, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.4rem;
+            color: var(--accent-cyan);
+        }
+
+        .feature-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            width: 100%;
+        }
+
+        .btn-primary-gradient {
+            position: relative;
+            background: linear-gradient(90deg, #1d4ed8 0%, #7e22ce 100%);
+            color: #ffffff;
+            border: none;
+            padding: 0.95rem 1.4rem;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 20px rgba(126, 34, 206, 0.4);
+            text-decoration: none;
+            will-change: transform;
+        }
+
+        .btn-primary-gradient:hover {
+            transform: translate3d(0, -2px, 0);
+            box-shadow: 0 8px 25px rgba(126, 34, 206, 0.6);
+        }
+
+        .btn-google-auth {
+            background: #ffffff;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+            padding: 0.95rem 1.4rem;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-google-auth:hover {
+            background: #f9fafb;
+            transform: translate3d(0, -2px, 0);
+        }
+
+        .btn-outline-glow {
+            position: relative;
+            background: rgba(15, 23, 42, 0.6);
+            color: #ffffff;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 0.95rem 1.4rem;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s ease, transform 0.2s ease;
+            text-decoration: none;
+            will-change: transform;
+        }
+
+        .btn-outline-glow:hover {
+            border-color: rgba(192, 132, 252, 0.6);
+            background: rgba(30, 41, 59, 0.8);
+            transform: translate3d(0, -2px, 0);
+        }
+
+        .btn-arrow-icon {
+            font-size: 1.1rem;
+            margin-left: auto;
+            opacity: 0.8;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-primary-gradient:hover .btn-arrow-icon,
+        .btn-outline-glow:hover .btn-arrow-icon {
+            transform: translateX(4px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+            color: #ffffff;
+            border: none;
+            padding: 0.85rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3);
+            transition: transform 0.2s ease;
+            will-change: transform;
+        }
+
+        .btn-danger:hover {
+            transform: translate3d(0, -2px, 0);
+        }
+
+        .site-footer {
+            margin-top: auto;
+            padding: 1rem;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.78rem;
+            line-height: 1.4;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .feature-animated-btn {
+            background: rgba(15, 20, 32, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 0.85rem 0.9rem;
+            text-align: left;
+            transition: transform 0.2s ease, background 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-height: 90px;
+            will-change: transform;
+        }
+
+        .feature-animated-btn:hover {
+            background: rgba(23, 30, 48, 0.95);
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translate3d(0, -2px, 0);
+        }
+
+        .dash-card-icon {
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+
+        .dash-card-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.15rem;
+            line-height: 1.2;
+        }
+
+        .dash-card-desc {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            line-height: 1.25;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s ease;
+            margin-top: 0.75rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .input-group { text-align: left; margin-bottom: 1rem; }
+        label {
+            display: block; font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 700;
+        }
+
+        input[type="text"], input[type="password"], select {
+            width: 100%; padding: 0.85rem 1.1rem; border-radius: 14px;
+            background: rgba(15, 23, 42, 0.85); border: 1px solid var(--card-border);
+            color: #fff; font-size: 0.9rem; outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus, select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .link-text {
+            display: inline-block; font-size: 0.8rem; color: var(--accent-cyan);
+            margin-top: 0.4rem; cursor: pointer; text-decoration: none; font-weight: 500;
+        }
+        .link-text:hover { text-decoration: underline; }
+
+        .notice-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5; padding: 0.85rem; border-radius: 14px; font-size: 0.85rem; margin-bottom: 1.25rem;
+        }
+
+        .warning-card-box {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 18px; padding: 1rem; text-align: left; margin-bottom: 1.25rem;
+        }
+
+        .warning-card-box ul {
+            margin-left: 1.2rem; margin-top: 0.4rem; color: #fca5a5; font-size: 0.82rem; line-height: 1.5;
+        }
+
+        .trait-list { text-align: left; margin: 1.2rem 0; display: grid; gap: 0.6rem; }
+        .trait-item {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border);
+            padding: 0.85rem 1rem; border-radius: 14px; font-size: 0.88rem;
+        }
+
+        .voice-card-box {
+            background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border);
+            padding: 1.5rem; border-radius: 20px; margin: 1.2rem 0; display: flex;
+            flex-direction: column; align-items: center; gap: 0.8rem;
+        }
+
+        .voice-btn {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #fff; border: none; width: 60px; height: 60px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4); transition: transform 0.2s ease;
+        }
+        .voice-btn:hover { transform: scale(1.08); }
+        .voice-btn svg { width: 24px; height: 24px; fill: #fff; }
+
+        .chat-container-whatsapp {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: #0b141a;
+        }
+
+        .chat-header-whatsapp {
+            background-color: #202c33;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #e9edef;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+            z-index: 10;
+        }
+
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #00a884;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            object-fit: cover;
+        }
+
+        .chat-messages-whatsapp {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 0);
+            background-size: 16px 16px;
+        }
+
+        .chat-msg {
+            max-width: 75%; padding: 0.75rem 1.1rem; border-radius: 16px; font-size: 0.9rem; line-height: 1.4;
+            position: relative;
+            user-select: none;
+            word-wrap: break-word;
+        }
+
+        .chat-msg.mine { align-self: flex-end; background: #005c4b; color: #e9edef; border-bottom-right-radius: 2px; }
+        .chat-msg.others { align-self: flex-start; background: #202c33; color: #e9edef; border-bottom-left-radius: 2px; }
+        
+        .chat-msg.creator-style {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(180, 83, 9, 0.4));
+            border: 1px solid #fbbf24;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.25);
+        }
+
+        .creator-tag-badge {
+            background: #fbbf24;
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .chat-msg-user { font-weight: 700; font-size: 0.78rem; margin-bottom: 0.2rem; display: block; }
+        .chat-msg-time { font-size: 0.68rem; color: rgba(255, 255, 255, 0.6); float: right; margin-top: 0.25rem; margin-left: 0.75rem; }
+        
+        .chat-input-whatsapp {
+            background-color: #202c33;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-input-whatsapp input {
+            flex: 1;
+            background-color: #2a3942;
+            border: none;
+            color: #e9edef;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .send-btn-wa {
+            background: #00a884;
+            border: none;
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+            will-change: opacity;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-card {
+            background: #1e293b; border: 1px solid var(--card-border);
+            border-radius: 24px; padding: 1.5rem; width: 90%; max-width: 400px; text-align: left;
+        }
+
+        .friend-status-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+        }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .status-online { background-color: #10b981; box-shadow: 0 0 10px #10b981; }
+        .status-offline { background-color: #64748b; }
+
+        .avatar-thumb {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .btn-whatsapp-pill {
+            background: #10b981;
+            color: #ffffff;
+            border: none;
+            padding: 0.85rem 1.4rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            width: 100%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);
+            text-decoration: none;
+            transition: transform 0.2s ease;
+            will-change: transform;
+        }
+
+        .btn-whatsapp-pill:hover {
+            background: #059669;
+            transform: translate3d(0, -2px, 0);
+        }
+
+        .reels-app-container {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reels-top-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+        }
+
+        .reels-back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .reels-brand-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #ff007f, #7928ca);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .upload-trigger-btn {
+            background: linear-gradient(135deg, #ff007f, #7928ca);
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 0, 127, 0.4);
+        }
+
+        .reels-feed {
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+        }
+
+        .reels-feed::-webkit-scrollbar { display: none; }
+
+        .no-reels-empty-state {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .profile-logo-circle {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            margin: 0 auto 10px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .profile-logo-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-logo-text {
+            font-size: 0.72rem;
+            color: #a1a1aa;
+            text-align: center;
+        }
+
+        .profile-follow-stats {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin: 8px 0 12px 0;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+        }
+
+        .stat-badge-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-number {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .personal-chat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1rem 1.2rem;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .personal-chat-item:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .green-online-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #10b981;
+            margin-left: 6px;
+        }
+
+        .unread-badge {
+            background: #10b981;
+            color: #000;
+            font-weight: 800;
+            font-size: 0.75rem;
+            border-radius: 50px;
+            padding: 2px 8px;
+            margin-left: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .studio-item {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--card-border);
+            padding: 1rem;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .crop-container {
+            width: 100%;
+            max-height: 300px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .cropper-view-box,
+        .cropper-face { border-radius: 50%; }
+
+        .announcement-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 1.2rem;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .announcement-card:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .announcement-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .poll-box {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 14px;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+        }
+
+        .poll-box.active { display: block; }
+
+        .poll-question {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .poll-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .poll-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+
+        .poll-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: var(--accent-cyan);
+        }
+
+        .search-container { margin-bottom: 1rem; }
+        
+        .user-search-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn-follow {
+            background: var(--accent-cyan);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            padding: 0.4rem 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .btn-requested {
+            background: rgba(255,255,255,0.1);
+            color: #a1a1aa;
+            font-weight: 600;
+            border: none;
+            padding: 0.4rem 0.9rem;
+            border-radius: 8px;
+            cursor: default;
+            font-size: 0.8rem;
+        }
+        
+        .btn-accept {
+            background: var(--accent-green);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+
+    <video id="snow-bg-video" loop autoplay muted playsinline>
+        <source src="https://www.image2url.com/r2/default/videos/1785967886189-6265a52e-db64-45be-9dd2-4328749e8366.mp4" type="video/mp4">
+    </video>
+
+    <audio id="aryan-voice-audio" src=""></audio>
+
+    <header class="top-navbar">
+        <a href="#" class="navbar-brand">
+            <div class="navbar-logo-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <span class="navbar-title">Friends Portal</span>
+        </a>
+        <button class="navbar-menu-btn" id="topNavMenuBtn" onclick="toggleNavDrawer()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </header>
+
+    <div class="nav-drawer-overlay" id="navDrawerOverlay" onclick="toggleNavDrawer()"></div>
+    <div class="nav-drawer" id="navDrawer">
+        <div class="nav-drawer-header">
+            <div class="nav-drawer-title">Portal Navigation</div>
+            <button class="drawer-close-btn" onclick="toggleNavDrawer()">&times;</button>
+        </div>
+        <a class="drawer-link" onclick="drawerNavigate('step-home')">🏠 Home</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-search-profiles')">🔍 Search Profiles & Follows</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-announcements')">📢 Announcements</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-dashboard')">⚡ Dashboard Grid</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-personality')">✨ Personality Insights</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-live-chat')">💬 Live Chat Room</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-personal-chat-list')">🔒 Personal Chat</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-reels-view')">🎬 Reels Feed</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-reel-studio')">📹 Reel Studio</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-ratings-view')">⭐ Ratings & Reviews</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-talk-aryan')">🎙️ Talk with Aryan</a>
+        <a class="drawer-link" onclick="drawerNavigate('step-games')">🎮 Arcade Zone</a>
+        <a class="drawer-link" onclick="openSettingsModal()">⚙️ Setting</a>
+    </div>
+
+    <div class="hero-banner-container">
+        <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYiDRqcg3YfFnHhuI-H2fNm3R-CTp3KgACsyoAAniTkFeZ07LwVoMYJz0E.png" alt="Friends Portal" class="main-top-logo">
+    </div>
+
+    <div class="main-card-wrapper">
+
+        <!-- STEP 1: Home Screen -->
+        <div class="card active" id="step-home">
+            <div class="welcome-badge">
+                👋 Welcome Back!
+            </div>
+            <h1 class="gradient-heading">Friends Portal</h1>
+            <p class="card-description">
+                Your private sanctuary to connect, chat, and explore with your inner circle.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon-wrapper">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="feature-label">Private Chat</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon-wrapper">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <span class="feature-label">Secure & Safe</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon-wrapper">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <span class="feature-label">Inner Circle</span>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button class="btn-primary-gradient" onclick="navigateTo('step-verification')">
+                    🔑 &nbsp; Friend Login
+                    <span class="btn-arrow-icon">→</span>
+                </button>
+
+                <button class="btn-google-auth" onclick="handlePureGoogleAuth()">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.29v3.15C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.29c-.82 1.62-1.29 3.46-1.29 5.42s.47 3.8 1.29 5.42l3.99-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.58l3.99 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+
+        <!-- REGISTER STEP: Phone optional -->
+        <div class="card" id="step-register-phone-optional">
+            <h1 class="gradient-heading">Add Phone Number</h1>
+            <p class="card-description">Linked Google Account: <strong id="linked-google-email" style="color:#38bdf8;"></strong></p>
+            <form onsubmit="handleSavePhone(event)">
+                <div class="input-group">
+                    <label>Mobile Number (Optional)</label>
+                    <input type="text" id="reg-optional-phone" placeholder="Enter phone number (optional)" autocomplete="off">
+                </div>
+                <button type="submit" class="btn-primary-gradient">
+                    Save & Continue
+                    <span class="btn-arrow-icon">→</span>
+                </button>
+            </form>
+            <button class="btn-secondary" onclick="handleSkipPhone()" style="margin-top:0.8rem;">Skip for Now</button>
+        </div>
+
+        <!-- REGISTER STEP: Passcode set -->
+        <div class="card" id="step-register-credentials">
+            <h1 class="gradient-heading">Setup Credentials</h1>
+            <p class="card-description">Set up your portal display name and secure passcode.</p>
+            <form onsubmit="handleCreateAccount(event)">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="reg-new-username" placeholder="Choose a unique username" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>Passcode</label>
+                    <input type="password" id="reg-new-password" placeholder="Create a secure passcode" required>
+                </div>
+                <p id="reg-cred-error" class="notice-box" style="display:none;"></p>
+                <button type="submit" class="btn-primary-gradient" style="margin-top:0.8rem;">
+                    Complete Registration
+                    <span class="btn-arrow-icon">→</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Search Profiles & Follow System -->
+        <div class="card card-full" id="step-search-profiles">
+            <h1 class="gradient-heading">🔍 Discover & Follow Profiles</h1>
+            <p class="card-description">Search other user profiles on the portal and send follow requests.</p>
+            
+            <div class="search-container">
+                <input type="text" id="profileSearchInput" placeholder="Search username..." oninput="filterProfilesSearch(this.value)">
+            </div>
+            
+            <div id="searchResultsList" style="text-align: left; max-height: 280px; overflow-y: auto; margin-bottom: 1rem;"></div>
+            
+            <div id="pendingRequestsSection" style="text-align: left; margin-bottom: 1rem; border-top: 1px solid var(--card-border); padding-top: 1rem;">
+                <h3 style="font-size: 0.9rem; color: var(--accent-gold); margin-bottom: 0.5rem;">📥 Pending Follow Requests Received</h3>
+                <div id="pendingRequestsList"></div>
+            </div>
+
+            <button class="btn-secondary" onclick="navigateTo('step-dashboard')">← Back to Dashboard</button>
+        </div>
+
+        <!-- STEP 2: Identity Check -->
+        <div class="card" id="step-verification">
+            <h1 class="gradient-heading">Identity Check</h1>
+            <p class="card-description">Are you an official friend of this portal?</p>
+            <div class="btn-container">
+                <button class="btn-primary-gradient" onclick="navigateTo('step-security-warning')">
+                    Yes, I am
+                    <span class="btn-arrow-icon">→</span>
+                </button>
+                <button class="btn-outline-glow" onclick="navigateTo('step-rejected')">No</button>
+            </div>
+        </div>
+
+        <div class="card" id="step-rejected">
+            <h1 style="color: #ef4444; font-size:1.8rem; font-weight:800; margin-bottom: 0.5rem;">Access Denied</h1>
+            <p style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 1rem 0;">Get lost.</p>
+            <button class="btn-secondary" onclick="navigateTo('step-home')">Return Home</button>
+        </div>
+
+        <div class="card" id="step-security-warning">
+            <div style="font-size: 2.5rem; margin-bottom: 0.3rem;">⚠️</div>
+            <h1 style="color: #fb7185; font-size: 1.6rem;">Security Alert</h1>
+            <div class="warning-card-box">
+                <strong style="color: #f87171; font-size: 0.9rem; display: block; margin-bottom: 0.3rem;">
+                    DO NOT SHARE YOUR PASSCODE WITH ANYONE!
+                </strong>
+                <p style="color: #cbd5e1; font-size: 0.8rem; margin-bottom: 0.4rem;">
+                    If you share your passcode with another person:
+                </p>
+                <ul>
+                    <li>Your account will be controlled by that person.</li>
+                    <li>They will gain full access to your profile and chats.</li>
+                    <li><strong>You will lose access to this website</strong>!</li>
+                </ul>
+            </div>
+            <div class="btn-container">
+                <button class="btn-danger" onclick="navigateTo('step-login')">I Understand, Proceed to Login</button>
+                <button class="btn-secondary" onclick="navigateTo('step-home')">Cancel</button>
+            </div>
+        </div>
+
+        <div class="card" id="step-login">
+            <h1 class="gradient-heading">Portal Login</h1>
+            <p class="card-description">Enter your username and passcode to enter.</p>
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="friend-name" placeholder="Enter username" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>Passcode</label>
+                    <input type="password" id="friend-password" placeholder="Enter passcode" required>
+                    <span class="link-text" onclick="showForgotPasswordNotice()">Forgot Password?</span>
+                </div>
+                <p id="forgot-notice" class="notice-box" style="display:none; margin-top:0.4rem; font-size:0.8rem;">
+                    Contact Aryan to reset your passcode.
+                </p>
+                <p id="login-error" class="notice-box" style="display:none; margin-top:0.4rem;">Invalid name or passcode!</p>
+                
+                <button type="submit" class="btn-primary-gradient" style="margin-top:0.8rem;">
+                    Verify & Enter
+                    <span class="btn-arrow-icon">→</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="card card-full" id="step-announcements">
+            <h1 class="gradient-heading">📢 Portal Announcements</h1>
+            <p class="card-description">Official school & community announcements.</p>
+
+            <div id="creator-composer-box" style="display:none; margin-bottom: 1.2rem; background: rgba(251, 191, 36, 0.1); border: 1px solid #fbbf24; padding: 1rem; border-radius: 16px;">
+                <h3 style="font-size:0.9rem; color:#fbbf24; margin-bottom:0.5rem; text-align:left;">👑 Compose Announcement (Creator Only)</h3>
+                <textarea id="new-announcement-text" class="form-control" style="width:100%; height:60px; background:#0f172a; border:1px solid var(--card-border); border-radius:10px; color:#fff; padding:8px; margin-bottom:8px;" placeholder="Write new announcement..."></textarea>
+                <button class="btn-primary-gradient" style="padding:0.5rem 1rem; font-size:0.82rem;" onclick="composeCreatorAnnouncement()">Post Announcement</button>
+            </div>
+
+            <div id="custom-announcements-list"></div>
+
+            <div class="announcement-card" onclick="togglePoll('headboy-poll')">
+                <div class="announcement-title">
+                    <span>👑 Announcement No 1: Head Boy of Junior</span>
+                    <span>▼</span>
+                </div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">Click to view poll details & voting.</div>
+                
+                <div class="poll-box" id="headboy-poll" onclick="event.stopPropagation()">
+                    <div class="profile-logo-circle" style="width:70px; height:70px; cursor:default;">
+                        <span class="profile-logo-text">unknown logo</span>
+                    </div>
+                    <div class="poll-question">was Aarav the head hoy of junior</div>
+                    <div class="poll-options">
+                        <button class="poll-btn" onclick="castHeadboyVote('Yes')"><span>Yes</span> <span id="hb-yes-count">0</span></button>
+                        <button class="poll-btn" onclick="castHeadboyVote('No')"><span>No</span> <span id="hb-no-count">0</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="announcement-card" onclick="togglePoll('rankers-poll')">
+                <div class="announcement-title">
+                    <span>🏆 Top Rankers of 2025 to 2026</span>
+                    <span>▼</span>
+                </div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">Click to view 3 ranking polls podium.</div>
+                
+                <div class="poll-box" id="rankers-poll" onclick="event.stopPropagation()">
+                    <div class="poll-question">Academic Top Performers (2025 - 2026)</div>
+                    <div class="podium-container">
+                        <div class="podium-bar podium-2nd" onclick="castRankerVote(2)">
+                            <div class="podium-rank">🥈 2nd</div>
+                            <div class="podium-title" id="ranker-2nd-name">Ranker 2</div>
+                            <div style="font-size:0.7rem; margin-top: auto; padding-bottom: 6px;" id="ranker-2nd-votes">0 votes</div>
+                        </div>
+
+                        <div class="podium-bar podium-1st" onclick="castRankerVote(1)">
+                            <div class="podium-rank">👑 1st</div>
+                            <div class="podium-title" id="ranker-1st-name">Ranker 1</div>
+                            <div style="font-size:0.7rem; margin-top: auto; padding-bottom: 6px;" id="ranker-1st-votes">0 votes</div>
+                        </div>
+
+                        <div class="podium-bar podium-3rd" onclick="castRankerVote(3)">
+                            <div class="podium-rank">🥉 3rd</div>
+                            <div class="podium-title" id="ranker-3rd-name">Ranker 3</div>
+                            <div style="font-size:0.7rem; margin-top: auto; padding-bottom: 6px;" id="ranker-3rd-votes">0 votes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary-gradient" onclick="navigateTo('step-dashboard')">
+                Proceed to Main Dashboard →
+            </button>
+        </div>
+
+        <div class="card card-full" id="step-dashboard">
+            <div class="profile-logo-circle" id="dashboard-avatar-circle">
+                <span class="profile-logo-text" id="dashboard-logo-label">no logo<br>unknown logo show</span>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 0.8rem;">
+                <h1 id="dashboard-welcome" class="gradient-heading" style="font-size: 1.6rem; margin-bottom: 0.1rem;">Welcome!</h1>
+                <span id="dashboard-user-badge" style="font-size: 0.82rem; color: #10b981; font-weight: 600;">● Authenticated Member</span>
+                
+                <div class="profile-follow-stats">
+                    <div class="stat-badge-box">
+                        <span class="stat-number" id="dash-followers-count">0</span>
+                        <span class="stat-label">Followers</span>
+                    </div>
+                    <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.15);"></div>
+                    <div class="stat-badge-box">
+                        <span class="stat-number" id="dash-following-count">0</span>
+                        <span class="stat-label">Following</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 8px; display: flex; gap: 8px; justify-content: center;">
+                    <button class="btn-outline-glow" style="padding: 0.45rem 0.9rem; font-size: 0.8rem; width: auto;" onclick="openEditProfileModal()">✏️ Edit Profile</button>
+                    <button class="btn-outline-glow" style="padding: 0.45rem 0.9rem; font-size: 0.8rem; width: auto;" onclick="navigateTo('step-search-profiles')">🔍 Search Profiles</button>
+                </div>
+            </div>
+
+            <div class="btn-grid">
+                <div class="feature-animated-btn" id="dash-card-personality" onclick="openSelfPersonality()">
+                    <span class="dash-card-icon">✨</span>
+                    <div class="dash-card-title">Personality Insights</div>
+                    <div class="dash-card-desc">View profile stats & traits</div>
+                </div>
+
+                <div class="feature-animated-btn" onclick="openLiveChat()">
+                    <span class="dash-card-icon">💬</span>
+                    <div class="dash-card-title">Global Live Chat</div>
+                    <div class="dash-card-desc">Talk with friends live</div>
+                </div>
+
+                <div class="feature-animated-btn" onclick="navigateTo('step-personal-chat-list')">
+                    <span class="dash-card-icon">🔒</span>
+                    <div class="dash-card-title">Personal Chat</div>
+                    <div class="dash-card-desc">Private 1-on-1 messages</div>
+                </div>
+
+                <div class="feature-animated-btn" onclick="navigateTo('step-reels-view')">
+                    <span class="dash-card-icon">🎬</span>
+                    <div class="dash-card-title">Reels Feed</div>
+                    <div class="dash-card-desc">Watch & share video reels</div>
+                </div>
+
+                <div class="feature-animated-btn" onclick="navigateTo('step-reel-studio')">
+                    <span class="dash-card-icon">📹</span>
+                    <div class="dash-card-title">Reel Studio</div>
+                    <div class="dash-card-desc">View uploaded posts & views</div>
+                </div>
+
+                <div class="feature-animated-btn" onclick="navigateTo('step-talk-aryan')">
+                    <span class="dash-card-icon">🎙️</span>
+                    <div class="dash-card-title">Talk with Aryan</div>
+                    <div class="dash-card-desc">Listen to personal audio</div>
+                </div>
+
+                <div class="feature-animated-btn" onclick="openOnlineStatusModal()">
+                    <span class="dash-card-icon">👥</span>
+                    <div class="dash-card-title">Active Friends</div>
+                    <div class="dash-card-desc">Check who is online</div>
+                </div>
+
+                <div class="feature-animated-btn" onclick="navigateTo('step-games')">
+                    <span class="dash-card-icon">🎮</span>
+                    <div class="dash-card-title">Arcade Zone</div>
+                    <div class="dash-card-desc">Play mini-games together</div>
+                </div>
+            </div>
+
+            <a href="https://chat.whatsapp.com/FNWTxgzDreH4ysUACxH2yG?s=cl&p=a&ilr=4" target="_blank" class="btn-whatsapp-pill">
+                📱 Join WhatsApp Official Group
+            </a>
+        </div>
+
+        <div class="card" id="step-personal-chat-list">
+            <h1 class="gradient-heading">Personal Chat</h1>
+            <p class="card-description">Select a friend to start a private conversation.</p>
+            <div id="personal-friends-list" style="text-align: left;"></div>
+            <button class="btn-secondary" onclick="navigateTo('step-dashboard')">← Back to Dashboard</button>
+        </div>
+
+        <div class="card card-chat-fullscreen" id="step-personal-chat-room">
+            <div class="chat-container-whatsapp">
+                <div class="chat-header-whatsapp">
+                    <div class="chat-header-info">
+                        <button onclick="navigateTo('step-personal-chat-list')" style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer; margin-right:5px;">←</button>
+                        <div class="chat-header-avatar" id="pchat-target-avatar">?</div>
+                        <div>
+                            <div style="font-weight:700;" id="pchat-target-name">Friend</div>
+                            <div style="font-size:0.7rem; color:#8696a0;">Private Encrypted Chat</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-messages-whatsapp" id="personal-chat-messages"></div>
+                <div class="chat-input-whatsapp">
+                    <input type="text" id="personal-chat-input" placeholder="Type a private message..." onkeypress="handlePersonalChatEnter(event)">
+                    <button class="send-btn-wa" onclick="sendPersonalMessage()">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="step-reel-studio">
+            <h1 class="gradient-heading">Reel Studio</h1>
+            <p class="card-description">Manage and view analytics for your uploaded media content.</p>
+            <div id="reel-studio-content"></div>
+            <button class="btn-secondary" onclick="navigateTo('step-dashboard')">← Back to Dashboard</button>
+        </div>
+
+        <div class="card" id="step-personality">
+            <h1 id="personality-title" class="gradient-heading">Personality Profile</h1>
+            <div class="trait-list" id="personality-traits"></div>
+            <button class="btn-secondary" onclick="navigateTo('step-dashboard')">← Back to Dashboard</button>
+        </div>
+
+        <div class="card" id="step-games">
+            <h1 class="gradient-heading">Arcade Zone</h1>
+            <div class="notice-box" id="games-notice-box">
+                Aryan is building multi-player mini-games. Coming soon!
+            </div>
+            <button class="btn-secondary" onclick="navigateTo('step-dashboard')">← Back to Dashboard</button>
+        </div>
+
+        <div class="card" id="step-talk-aryan">
+            <h1 class="gradient-heading">Talk with Aryan</h1>
+            <p class="card-description">Listen to a personal voice note recorded just for you.</p>
+
+            <div class="voice-card-box">
+                <button class="voice-btn" onclick="toggleVoicePlayback()">
+                    <svg id="voice-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="voice-pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <span id="voice-status-text" style="font-size:0.85rem; color: var(--text-secondary);">Click to Play Voice Message</span>
+            </div>
+            <button class="btn-secondary" onclick="navigateTo('step-dashboard')">← Back to Dashboard</button>
+        </div>
+
+        <div class="card card-chat-fullscreen" id="step-live-chat">
+            <div class="chat-container-whatsapp">
+                <div class="chat-header-whatsapp">
+                    <div class="chat-header-info">
+                        <button onclick="navigateTo('step-dashboard')" style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer; margin-right:5px;">←</button>
+                        <div class="chat-header-avatar">🌐</div>
+                        <div>
+                            <div style="font-weight:700;">Global Live Chat</div>
+                            <div style="font-size:0.7rem; color:#8696a0;">Real-time messaging platform</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-messages-whatsapp" id="chat-messages-container"></div>
+                <div class="chat-input-whatsapp">
+                    <input type="text" id="chat-user-input" placeholder="Type a message..." autocomplete="off" onkeypress="handleChatEnter(event)">
+                    <button class="send-btn-wa" onclick="sendChatMessage()">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="step-ratings-view">
+            <h1 class="gradient-heading">Ratings & Reviews</h1>
+            <p class="card-description">Leave a rating for Aryan's voice note or view community feedback!</p>
+
+            <div class="stars">
+                <input type="radio" id="star5" name="rating" value="5" onclick="submitRating(5)"><label for="star5">★</label>
+                <input type="radio" id="star4" name="rating" value="4" onclick="submitRating(4)"><label for="star4">★</label>
+                <input type="radio" id="star3" name="rating" value="3" onclick="submitRating(3)"><label for="star3">★</label>
+                <input type="radio" id="star2" name="rating" value="2" onclick="submitRating(2)"><label for="star2">★</label>
+                <input type="radio" id="star1" name="rating" value="1" onclick="submitRating(1)"><label for="star1">★</label>
+            </div>
+            <p id="rating-thanks" style="color:var(--accent-green); font-weight:600; display:none; margin-bottom:0.8rem;">Thanks for rating! ⭐</p>
+
+            <h3 style="font-size:0.9rem; text-align:left; margin-bottom:0.4rem; color: var(--text-secondary);">Recent Friend Ratings:</h3>
+            <div class="reviews-container" id="reviews-list-box">
+                <div style="font-size:0.8rem; color:var(--text-secondary);">Loading ratings...</div>
+            </div>
+
+            <button class="btn-secondary" onclick="navigateTo('step-dashboard')">← Back to Dashboard</button>
+        </div>
+
+        <div class="card card-reels-fullscreen" id="step-reels-view">
+            <div class="reels-app-container">
+                <div class="reels-top-header">
+                    <button class="reels-back-btn" onclick="navigateTo('step-dashboard')">← Back</button>
+                    <div class="reels-brand-title">Reels & Photos</div>
+                    <button class="upload-trigger-btn" onclick="openUploadReelModal()">+ Upload Content</button>
+                </div>
+
+                <div class="reels-feed" id="reelsFeedContainer">
+                    <div class="no-reels-empty-state">
+                        no video and photo post uploaded yet
+                    </div>
+                </div>
+
+                <div class="reel-modal" id="uploadReelModal">
+                    <div class="reel-modal-header">
+                        <div class="reel-modal-title">Create New Content Post</div>
+                        <button class="close-reel-btn" onclick="closeUploadReelModal()">&times;</button>
+                    </div>
+                    <form class="upload-reel-form" onsubmit="handleReelUpload(event)">
+                        <div>
+                            <label>Choose Upload Type</label>
+                            <select id="reelMediaType" class="form-control" onchange="toggleMediaInputAccept(this.value)">
+                                <option value="video">Reel Video</option>
+                                <option value="photo">Photo Post</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Select File from Gallery</label>
+                            <input type="file" id="reelVideoInput" accept="video/*" class="form-control" required>
+                        </div>
+                        <div>
+                            <label>Title</label>
+                            <input type="text" id="reelTitleInput" class="form-control" placeholder="Add title..." required>
+                        </div>
+                        <div>
+                            <label>Description & About Yourself</label>
+                            <textarea id="reelDescInput" class="form-control" placeholder="Add description..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit-reel">Publish Content</button>
+                    </form>
+                </div>
+
+                <div class="comment-sheet" id="reelCommentSheet">
+                    <div class="reel-modal-header">
+                        <div class="reel-modal-title">Comments</div>
+                        <button class="close-reel-btn" onclick="closeReelComments()">&times;</button>
+                    </div>
+                    <div class="comment-list" id="reelCommentList">
+                        <div class="comment-item"><strong>@system:</strong> Be the first to comment!</div>
+                    </div>
+                    <div class="comment-input-box">
+                        <input type="text" id="newReelCommentInput" class="form-control" placeholder="Add comment...">
+                        <button class="upload-trigger-btn" onclick="addReelComment()">Post</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="edit-profile-modal">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h2 style="font-size:1.1rem; font-weight:700;">Edit Profile</h2>
+                <button onclick="closeEditProfileModal()" style="background:none; border:none; color:#fff; font-size:1.3rem; cursor:pointer;">✕</button>
+            </div>
+            <form onsubmit="handleProfileUpdate(event)">
+                <div class="input-group">
+                    <label>Upload New Custom Logo</label>
+                    <input type="file" id="profile-logo-input" accept="image/*" onchange="openCropModal(event)">
+                </div>
+                <div class="input-group">
+                    <label>Description & About Yourself</label>
+                    <textarea id="profile-bio-input" class="form-control" style="width:100%; height:70px; background:#0f172a; border:1px solid var(--card-border); border-radius:10px; color:#fff; padding:8px;" placeholder="Write description and about yourself..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Account Privacy</label>
+                    <select id="profile-privacy-input" style="width:100%;">
+                        <option value="public">🌐 Public (Anyone can view profile details)</option>
+                        <option value="private">🔒 Private (Only approved followers view details)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary-gradient">Save Profile Details</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Circular Image Crop Modal -->
+    <div class="modal-overlay" id="crop-image-modal">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h2 style="font-size:1.1rem; font-weight:700;">Fit Image into Circle</h2>
+                <button onclick="closeCropModal()" style="background:none; border:none; color:#fff; font-size:1.3rem; cursor:pointer;">✕</button>
+            </div>
+            <div class="crop-container">
+                <img id="crop-target-image" src="" style="max-width:100%;">
+            </div>
+            <button class="btn-primary-gradient" onclick="applyCircularCrop()">Crop & Set Logo</button>
+        </div>
+    </div>
+
+    <!-- Friend View Modal -->
+    <div class="modal-overlay" id="friend-profile-modal">
+        <div class="modal-card" style="text-align:center;">
+            <div style="display:flex; justify-content:flex-end;">
+                <button onclick="closeFriendProfileModal()" style="background:none; border:none; color:#fff; font-size:1.3rem; cursor:pointer;">✕</button>
+            </div>
+            <div class="profile-logo-circle" id="view-friend-logo"></div>
+            <h2 id="view-friend-name" style="font-size:1.3rem; margin-bottom:0.2rem;">Friend Name</h2>
+            
+            <div class="profile-follow-stats" style="margin-bottom:8px;">
+                <div><strong id="view-friend-followers" style="color:var(--accent-cyan);">0</strong> Followers</div>
+                <div>•</div>
+                <div><strong id="view-friend-following" style="color:var(--accent-cyan);">0</strong> Following</div>
+            </div>
+
+            <p id="view-friend-email" style="font-size:0.82rem; color:var(--accent-cyan); margin-bottom:0.5rem;"></p>
+            <p id="view-friend-desc" style="font-size:0.85rem; color:#94a3b8; line-height:1.4; margin-bottom:1rem;"></p>
+            <div id="friend-profile-action-area"></div>
+        </div>
+    </div>
+
+    <!-- Online Status Modal -->
+    <div class="modal-overlay" id="online-modal-overlay">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h2 style="font-size:1.1rem; font-weight:700;">Active Online Friends</h2>
+                <button onclick="closeOnlineStatusModal()" style="background:none; border:none; color:#fff; font-size:1.3rem; cursor:pointer;">✕</button>
+            </div>
+            <div id="online-friends-list"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settings-modal-overlay">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h2 style="font-size:1.2rem; font-weight:800; color:var(--accent-cyan);">⚙️ Settings Page</h2>
+                <button onclick="closeSettingsModal()" style="background:none; border:none; color:#fff; font-size:1.3rem; cursor:pointer;">✕</button>
+            </div>
+            
+            <div style="margin-bottom:1.2rem;">
+                <label style="color:#fff; font-size:0.85rem; margin-bottom:0.5rem;">Background Theme</label>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-outline-glow" style="padding:0.6rem; font-size:0.8rem;" onclick="applyTheme('dark')">🌙 Dark Theme</button>
+                    <button class="btn-outline-glow" style="padding:0.6rem; font-size:0.8rem;" onclick="applyTheme('snow')">❄️ Snow Fall Theme</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom:1rem;">
+                <label style="color:#fff; font-size:0.85rem; margin-bottom:0.3rem;">Account Overview</label>
+                <div style="font-size:0.82rem; color:var(--text-secondary); background:rgba(255,255,255,0.03); padding:0.8rem; border-radius:12px; border:1px solid var(--card-border);">
+                    Logged as: <strong id="settings-user-display" style="color:#fff;">Guest</strong>
+                </div>
+            </div>
+
+            <button class="btn-secondary" onclick="closeSettingsModal()">Done</button>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        © 2026 Friends Portal. All rights reserved.<br>
+        Built for real connections.
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <!-- Cropper.js for circular crop functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <script>
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDL_kA5LFJ7qmhT29kxZ_EVYE2dsXvZhpw",
+            authDomain: "crepto-c7e36.firebaseapp.com",
+            databaseURL: "https://crepto-c7e36-default-rtdb.firebaseio.com",
+            projectId: "crepto-c7e36",
+            storageBucket: "crepto-c7e36.firebasestorage.app",
+            messagingSenderId: "629408373190",
+            appId: "1:629408373190:web:5f966c3416ac408b7ebac7"
+        };
+
+        let db = null;
+        let auth = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            auth = firebase.auth();
+        } catch(e) { console.log(e); }
+
+        let loggedInUser = "Unknown User";
+        let isLoggedIn = false;
+        let isCreator = false;
+        let reelCount = 0;
+        let activePersonalTarget = "";
+        let cropper = null;
+        let croppedLogoDataUrl = "";
+
+        let currentRegGmail = "";
+        let currentRegPhone = "";
+
+        const unreadCounts = {};
+        const recentChatTimestamps = {};
+
+        const allFriends = ["Anup", "Aarav", "Rao Sahab", "Abeer", "Manu", "Creator"];
+
+        const userProfiles = {
+            "Creator": { logo: "", bio: "The mastermind behind Friends Portal.", email: "creator.portal@gmail.com", phone: "+919876543210", isPrivate: false },
+            "Anup": { logo: "", bio: "Cool & collected friend.", email: "anup.friend@gmail.com", phone: "+919876543211", isPrivate: false },
+            "Aarav": { logo: "", bio: "Tech analyst and logic powerhouse.", email: "aarav.tech@gmail.com", phone: "+919876543212", isPrivate: false },
+            "Rao Sahab": { logo: "", bio: "Leader and status figure.", email: "raosahab.official@gmail.com", phone: "+919876543213", isPrivate: false },
+            "Abeer": { logo: "", bio: "Mischief master and academic beast.", email: "abeer.mischief@gmail.com", phone: "+919876543214", isPrivate: false },
+            "Manu": { logo: "", bio: "Bright energy & wonderful friend.", email: "manu.vibes@gmail.com", phone: "+919876543215", isPrivate: false }
+        };
+
+        const registeredGmailMap = {};
+        const registeredUsersDatabase = {
+            "Creator": "professional",
+            "Anup": "199",
+            "Aarav": "688",
+            "Rao Sahab": "628",
+            "Abeer": "478",
+            "Manu": "677"
+        };
+
+        const followSystemData = {
+            followers: {},
+            following: {},
+            pendingRequests: {}
+        };
+
+        /* REAL GOOGLE OAUTH SIGN-IN PROCESSOR */
+        function handlePureGoogleAuth() {
+            if (!auth) {
+                alert("Firebase Auth initialized error");
+                return;
+            }
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+
+            auth.signInWithPopup(provider).then((result) => {
+                const user = result.user;
+                processGoogleUserAuth(user);
+            }).catch((error) => {
+                console.warn("Popup blocked/failed, trying redirect auth flow...", error);
+                auth.signInWithRedirect(provider);
+            });
+        }
+
+        // Handle Redirect Result if Redirect Flow was used
+        if (auth) {
+            auth.getRedirectResult().then((result) => {
+                if (result.user) {
+                    processGoogleUserAuth(result.user);
+                }
+            }).catch((err) => console.error(err));
+        }
+
+        function processGoogleUserAuth(user) {
+            const email = user.email;
+            currentRegGmail = email;
+
+            // Check if user is already registered in DB
+            if (registeredGmailMap[email]) {
+                const existingUsername = registeredGmailMap[email];
+                loggedInUser = existingUsername;
+                isLoggedIn = true;
+                if (existingUsername.toLowerCase() === 'creator') isCreator = true;
+
+                document.getElementById('topNavMenuBtn').classList.add('logged-in');
+                updateDashboardDisplay();
+                navigateTo('step-announcements');
+            } else {
+                document.getElementById('linked-google-email').innerText = email;
+                navigateTo('step-register-phone-optional');
+            }
+        }
+
+        function hideHalfEmail(email) {
+            if (!email || !email.includes('@')) return 'em***@gmail.com';
+            const parts = email.split('@');
+            const name = parts[0];
+            const domain = parts[1];
+            const visibleLen = Math.max(1, Math.floor(name.length / 2));
+            const hiddenPart = '***';
+            return name.substring(0, visibleLen) + hiddenPart + '@' + domain;
+        }
+
+        function listenToRealtimeProfiles() {
+            if (!db) return;
+            db.ref('userProfiles').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach(username => {
+                        if (userProfiles[username]) {
+                            if (data[username].logo) userProfiles[username].logo = data[username].logo;
+                            if (data[username].bio) userProfiles[username].bio = data[username].bio;
+                            if (data[username].email) userProfiles[username].email = data[username].email;
+                            if (data[username].phone) userProfiles[username].phone = data[username].phone;
+                            if (data[username].isPrivate !== undefined) userProfiles[username].isPrivate = data[username].isPrivate;
+                        } else {
+                            userProfiles[username] = data[username];
+                        }
+                    });
+                    if (isLoggedIn) updateDashboardProfileUI();
+                }
+            });
+
+            db.ref('registeredUsers').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach(username => {
+                        registeredUsersDatabase[username] = data[username];
+                        if (!allFriends.includes(username)) {
+                            allFriends.push(username);
+                        }
+                    });
+                }
+            });
+
+            db.ref('registeredGmails').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    Object.assign(registeredGmailMap, data);
+                }
+            });
+
+            db.ref('followSystem').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.followers) followSystemData.followers = data.followers;
+                    if (data.following) followSystemData.following = data.following;
+                    if (data.pendingRequests) followSystemData.pendingRequests = data.pendingRequests;
+                }
+                if (isLoggedIn) {
+                    updateDashboardProfileUI();
+                    renderPendingRequests();
+                }
+            });
+        }
+
+        const userContentPosts = [];
+        const defaultAudioLink = "https://www.image2url.com/r2/default/audio/1785895291166-cfadbee8-933a-47aa-8243-e8b5aab00363.mp3";
+        const voiceAudioURLs = {
+            "Anup": defaultAudioLink, "Aarav": defaultAudioLink, "Rao Sahab": defaultAudioLink,
+            "Abeer": defaultAudioLink, "Manu": defaultAudioLink, "Creator": defaultAudioLink
+        };
+
+        const traitsData = {
+            "Creator": [
+                "👑 <strong>Mastermind:</strong> The visionary creator and developer behind this entire portal platform.",
+                "⚡ <strong>System Control:</strong> Complete management, configuration, and oversight privileges."
+            ],
+            "Anup": ["😎 <strong>Vibe:</strong> Effortlessly calm and collected under any situation."],
+            "Aarav": ["🧠 <strong>IQ Level:</strong> Exceptional analytical ability and quick logic."],
+            "Rao Sahab": ["⚡ <strong>Leadership:</strong> Unmatched presence, authority, and confidence."],
+            "Abeer": ["😜 <strong>Mischief Master:</strong> Super naughty, constantly pulling pranks and causing fun chaos."],
+            "Manu": ["🌸 <strong>Positive Vibes:</strong> Spreads positivity and smile everywhere she goes."]
+        };
+
+        function handleSavePhone(e) {
+            e.preventDefault();
+            const phone = document.getElementById('reg-optional-phone').value.trim();
+            currentRegPhone = phone;
+            navigateTo('step-register-credentials');
+        }
+
+        function handleSkipPhone() {
+            currentRegPhone = "";
+            navigateTo('step-register-credentials');
+        }
+
+        function handleCreateAccount(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-new-username').value.trim();
+            const password = document.getElementById('reg-new-password').value.trim();
+            const errorBox = document.getElementById('reg-cred-error');
+
+            if (!username || !password) return;
+
+            if (registeredUsersDatabase[username] || allFriends.includes(username)) {
+                errorBox.style.display = 'block';
+                errorBox.innerText = "Username already in use! Please choose another name.";
+                return;
+            }
+
+            errorBox.style.display = 'none';
+
+            registeredUsersDatabase[username] = password;
+            if (currentRegGmail) registeredGmailMap[currentRegGmail] = username;
+            if (!allFriends.includes(username)) {
+                allFriends.push(username);
+            }
+
+            userProfiles[username] = {
+                logo: "",
+                bio: "New member of Friends Portal.",
+                email: currentRegGmail || `${username}@gmail.com`,
+                phone: currentRegPhone || "Not provided",
+                isPrivate: false
+            };
+
+            if (db) {
+                db.ref('registeredUsers/' + username).set(password);
+                if (currentRegGmail) db.ref('registeredGmails/' + currentRegGmail.replace('.', '_')).set(username);
+                db.ref('userProfiles/' + username).set(userProfiles[username]);
+            }
+
+            loggedInUser = username;
+            isLoggedIn = true;
+            document.getElementById('topNavMenuBtn').classList.add('logged-in');
+            updateDashboardDisplay();
+            navigateTo('step-announcements');
+        }
+
+        function filterProfilesSearch(query) {
+            const listContainer = document.getElementById('searchResultsList');
+            const q = query.toLowerCase().trim();
+            if (!q) {
+                listContainer.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            allFriends.forEach(friend => {
+                if (friend === loggedInUser) return;
+                if (friend.toLowerCase().includes(q)) {
+                    const isFollowing = checkIsFollowing(loggedInUser, friend);
+                    const hasRequested = checkHasRequested(loggedInUser, friend);
+                    
+                    html += `
+                        <div class="user-search-result">
+                            <div onclick="openFriendProfileModal('${escapeHTML(friend)}')" style="display:flex; align-items:center; cursor:pointer;">
+                                <div style="font-weight:700; color:#fff;">@${escapeHTML(friend)}</div>
+                            </div>
+                            <div>
+                                ${isFollowing ? `<span style="font-size:0.78rem; color:var(--accent-green); font-weight:700;">✓ Following</span>` :
+                                  hasRequested ? `<button class="btn-requested">Requested</button>` :
+                                  `<button class="btn-follow" onclick="sendFollowRequest('${escapeHTML(friend)}')">Follow</button>`}
+                            </div>
+                        </div>`;
+                }
+            });
+            listContainer.innerHTML = html || '<div style="font-size:0.82rem; color:#a1a1aa; padding:0.5rem;">No users found.</div>';
+        }
+
+        function checkIsFollowing(user, target) {
+            if (!followSystemData.following[user]) return false;
+            return followSystemData.following[user].includes(target);
+        }
+
+        function checkHasRequested(user, target) {
+            if (!followSystemData.pendingRequests[target]) return false;
+            return followSystemData.pendingRequests[target].includes(user);
+        }
+
+        function sendFollowRequest(targetFriend) {
+            const isTargetPrivate = userProfiles[targetFriend] ? userProfiles[targetFriend].isPrivate : false;
+
+            if (!isTargetPrivate) {
+                if (!followSystemData.following[loggedInUser]) followSystemData.following[loggedInUser] = [];
+                if (!followSystemData.following[loggedInUser].includes(targetFriend)) followSystemData.following[loggedInUser].push(targetFriend);
+
+                if (!followSystemData.followers[targetFriend]) followSystemData.followers[targetFriend] = [];
+                if (!followSystemData.followers[targetFriend].includes(loggedInUser)) followSystemData.followers[targetFriend].push(loggedInUser);
+
+                if (db) {
+                    db.ref(`followSystem/following/${loggedInUser}`).set(followSystemData.following[loggedInUser]);
+                    db.ref(`followSystem/followers/${targetFriend}`).set(followSystemData.followers[targetFriend]);
+                }
+                alert(`You are now following @${targetFriend}`);
+            } else {
+                if (!followSystemData.pendingRequests[targetFriend]) {
+                    followSystemData.pendingRequests[targetFriend] = [];
+                }
+                if (!followSystemData.pendingRequests[targetFriend].includes(loggedInUser)) {
+                    followSystemData.pendingRequests[targetFriend].push(loggedInUser);
+                }
+
+                if (db) {
+                    db.ref(`followSystem/pendingRequests/${targetFriend}`).set(followSystemData.pendingRequests[targetFriend]);
+                }
+                alert(`Follow request sent to private profile @${targetFriend}`);
+            }
+
+            filterProfilesSearch(document.getElementById('profileSearchInput').value || '');
+            updateDashboardProfileUI();
+        }
+
+        function renderPendingRequests() {
+            const container = document.getElementById('pendingRequestsList');
+            if (!container) return;
+
+            const pending = (followSystemData.pendingRequests[loggedInUser] || []);
+            if (pending.length === 0) {
+                container.innerHTML = '<div style="font-size:0.78rem; color:#a1a1aa;">No pending requests.</div>';
+                return;
+            }
+
+            let html = '';
+            pending.forEach(requester => {
+                html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); padding:6px 10px; border-radius:8px; margin-bottom:4px;">
+                        <span style="font-size:0.85rem; font-weight:600;">@${escapeHTML(requester)}</span>
+                        <button class="btn-accept" onclick="acceptFollowRequest('${escapeHTML(requester)}')">Accept</button>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function acceptFollowRequest(requester) {
+            const pending = followSystemData.pendingRequests[loggedInUser] || [];
+            followSystemData.pendingRequests[loggedInUser] = pending.filter(u => u !== requester);
+
+            if (!followSystemData.followers[loggedInUser]) followSystemData.followers[loggedInUser] = [];
+            if (!followSystemData.followers[loggedInUser].includes(requester)) followSystemData.followers[loggedInUser].push(requester);
+
+            if (!followSystemData.following[requester]) followSystemData.following[requester] = [];
+            if (!followSystemData.following[requester].includes(loggedInUser)) followSystemData.following[requester].push(loggedInUser);
+
+            if (db) {
+                db.ref(`followSystem/pendingRequests/${loggedInUser}`).set(followSystemData.pendingRequests[loggedInUser]);
+                db.ref(`followSystem/followers/${loggedInUser}`).set(followSystemData.followers[loggedInUser]);
+                db.ref(`followSystem/following/${requester}`).set(followSystemData.following[requester]);
+            }
+
+            alert(`Accepted @${requester}'s follow request!`);
+            renderPendingRequests();
+            updateDashboardProfileUI();
+        }
+
+        function toggleNavDrawer() {
+            if (!isLoggedIn) return;
+            document.getElementById('navDrawer').classList.toggle('active');
+            document.getElementById('navDrawerOverlay').classList.toggle('active');
+        }
+
+        function drawerNavigate(targetId) {
+            if (!isLoggedIn) return;
+            toggleNavDrawer();
+            navigateTo(targetId);
+        }
+
+        function openSettingsModal() {
+            if (isLoggedIn) toggleNavDrawer();
+            document.getElementById('settings-user-display').innerText = loggedInUser;
+            document.getElementById('settings-modal-overlay').classList.add('active');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal-overlay').classList.remove('active');
+        }
+
+        function applyTheme(themeType) {
+            const snowVideo = document.getElementById('snow-bg-video');
+            if (themeType === 'snow') {
+                snowVideo.style.display = 'block';
+                snowVideo.play();
+            } else if (themeType === 'dark') {
+                snowVideo.style.display = 'none';
+                snowVideo.pause();
+            }
+            closeSettingsModal();
+        }
+
+        function showForgotPasswordNotice() {
+            document.getElementById('forgot-notice').style.display = 'block';
+        }
+
+        function toggleVoicePlayback() {
+            const voiceAudio = document.getElementById('aryan-voice-audio');
+            const playIcon = document.getElementById('voice-play-icon');
+            const pauseIcon = document.getElementById('voice-pause-icon');
+            const statusText = document.getElementById('voice-status-text');
+
+            if (!voiceAudio.src) {
+                statusText.innerText = 'Audio note is not loaded!';
+                statusText.style.color = 'var(--accent-red)';
+                return;
+            }
+
+            if (voiceAudio.paused) {
+                voiceAudio.play().then(() => {
+                    playIcon.style.display = 'none';
+                    pauseIcon.style.display = 'block';
+                    statusText.innerText = `Playing voice message...`;
+                }).catch(() => {
+                    statusText.innerText = 'Error playing audio file!';
+                });
+            } else {
+                voiceAudio.pause();
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                statusText.innerText = 'Paused Voice Message';
+            }
+
+            voiceAudio.onended = () => {
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                statusText.innerText = 'Voice Message Finished';
+            };
+        }
+
+        function openSelfPersonality() {
+            document.getElementById('personality-title').innerText = `${escapeHTML(loggedInUser)}'s Insights`;
+            const container = document.getElementById('personality-traits');
+            container.innerHTML = (traitsData[loggedInUser] || [
+                "✨ <strong>Portal Member:</strong> Valued active member of the community network.",
+                "🚀 <strong>Active Explorer:</strong> Exploring features, chats, and shared media."
+            ]).map(t => `<div class="trait-item">${t}</div>`).join('');
+            navigateTo('step-personality');
+        }
+
+        function setupPresenceTracking() {
+            if (!db || loggedInUser === "Unknown User") return;
+            const userStatusRef = db.ref('status/' + loggedInUser);
+            const connectedRef = db.ref('.info/connected');
+
+            connectedRef.on('value', (snapshot) => {
+                if (snapshot.val() === false) return;
+                userStatusRef.onDisconnect().set({ state: 'offline' }).then(() => {
+                    userStatusRef.set({ state: 'online' });
+                });
+            });
+        }
+
+        function openOnlineStatusModal() {
+            document.getElementById('online-modal-overlay').classList.add('active');
+            renderOnlineFriendsList();
+        }
+
+        function closeOnlineStatusModal() {
+            document.getElementById('online-modal-overlay').classList.remove('active');
+        }
+
+        function renderOnlineFriendsList() {
+            const container = document.getElementById('online-friends-list');
+            if (!db) return;
+
+            db.ref('status').on('value', (snapshot) => {
+                const statuses = snapshot.val() || {};
+                let html = '';
+
+                allFriends.forEach(friend => {
+                    if (friend === loggedInUser) return;
+                    const isOnline = statuses[friend] && statuses[friend].state === 'online';
+                    const logo = userProfiles[friend] ? userProfiles[friend].logo : '';
+
+                    html += `
+                        <div class="friend-status-item">
+                            <div onclick="openFriendProfileModal('${escapeHTML(friend)}')" style="display:flex; align-items:center;">
+                                ${logo ? `<img src="${logo}" class="avatar-thumb">` : `<div class="avatar-thumb" style="background:#334155; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem;">Logo</div>`}
+                                <span style="font-weight:600;">${escapeHTML(friend)}</span>
+                            </div>
+                            <div>
+                                <span class="status-dot ${isOnline ? 'status-online' : 'status-offline'}"></span>
+                                <span style="font-size:0.85rem; color:${isOnline ? '#34d399' : '#94a3b8'};">${isOnline ? 'Online' : 'Offline'}</span>
+                            </div>
+                        </div>`;
+                });
+                container.innerHTML = html;
+            });
+        }
+
+        function openFriendProfileModal(friendName) {
+            const friendData = userProfiles[friendName] || { logo: '', bio: 'No description provided.', email: 'friend@gmail.com', isPrivate: false };
+            document.getElementById('view-friend-name').innerText = friendName;
+            
+            const isFollowing = checkIsFollowing(loggedInUser, friendName) || friendName === "Creator" || loggedInUser === "Creator";
+            const isPrivate = friendData.isPrivate;
+
+            const friendFollowers = (followSystemData.followers[friendName] || []).length;
+            const friendFollowing = (followSystemData.following[friendName] || []).length;
+            document.getElementById('view-friend-followers').innerText = friendFollowers;
+            document.getElementById('view-friend-following').innerText = friendFollowing;
+
+            const emailElem = document.getElementById('view-friend-email');
+            const descElem = document.getElementById('view-friend-desc');
+            const actionArea = document.getElementById('friend-profile-action-area');
+
+            if (!isPrivate || isFollowing) {
+                emailElem.innerText = `Email: ${hideHalfEmail(friendData.email)}`;
+                descElem.innerText = friendData.bio || 'No description provided yet.';
+                actionArea.innerHTML = isFollowing ? 
+                    `<span style="font-size:0.8rem; color:var(--accent-green); font-weight:700;">✓ Following</span>` :
+                    `<button class="btn-follow" onclick="sendFollowRequestModal('${escapeHTML(friendName)}')">Follow</button>`;
+            } else {
+                emailElem.innerText = `Email: Locked`;
+                descElem.innerText = `🔒 This profile is private. You must follow and have your request accepted by @${escapeHTML(friendName)} to view full details.`;
+                
+                const hasRequested = checkHasRequested(loggedInUser, friendName);
+                if (hasRequested) {
+                    actionArea.innerHTML = `<button class="btn-requested">Request Pending</button>`;
+                } else {
+                    actionArea.innerHTML = `<button class="btn-follow" onclick="sendFollowRequestModal('${escapeHTML(friendName)}')">Send Follow Request</button>`;
+                }
+            }
+
+            const logoBox = document.getElementById('view-friend-logo');
+            if (friendData.logo && (!isPrivate || isFollowing)) {
+                logoBox.innerHTML = `<img src="${friendData.logo}" style="width:100%; height:100%; object-fit:cover;">`;
+            } else {
+                logoBox.innerHTML = `<span class="profile-logo-text">${(!isPrivate || isFollowing) ? 'no logo' : '🔒 Locked'}</span>`;
+            }
+
+            document.getElementById('friend-profile-modal').classList.add('active');
+        }
+
+        function sendFollowRequestModal(target) {
+            sendFollowRequest(target);
+            openFriendProfileModal(target);
+        }
+
+        function closeFriendProfileModal() {
+            document.getElementById('friend-profile-modal').classList.remove('active');
+        }
+
+        function openLiveChat() {
+            navigateTo('step-live-chat');
+            listenToChatMessages();
+        }
+
+        function listenToChatMessages() {
+            if (!db) return;
+            db.ref('chat').on('value', (snapshot) => {
+                const container = document.getElementById('chat-messages-container');
+                const data = snapshot.val();
+                if (!data) {
+                    container.innerHTML = `<div style="font-size:0.85rem; color:var(--text-secondary); text-align:center; padding-top:20px;">No live messages yet! Say hi 👋</div>`;
+                    return;
+                }
+
+                let html = '';
+                Object.values(data).forEach(m => {
+                    const isMine = m.user === loggedInUser;
+                    const isMsgCreator = m.isCreator || m.user === "Creator";
+                    const dateObj = new Date(m.timestamp);
+                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    let customStyleClass = isMine ? 'mine' : 'others';
+                    if (isMsgCreator) customStyleClass += ' creator-style';
+
+                    html += `
+                        <div class="chat-msg ${customStyleClass}">
+                            ${!isMine || isMsgCreator ? `
+                                <span class="chat-msg-user" style="color:${isMsgCreator ? '#fbbf24' : (m.color || 'var(--accent-cyan)')};">
+                                    ${escapeHTML(m.user)} ${isMsgCreator ? '<span class="creator-tag-badge">👑 CREATOR</span>' : ''}
+                                </span>` : ''}
+                            <div>${escapeHTML(m.text)}</div>
+                            <span class="chat-msg-time">${timeStr}</span>
+                        </div>`;
+                });
+                container.innerHTML = html;
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-user-input');
+            const messageText = input.value.trim();
+            if (!messageText || !db) return;
+
+            let userColor = 'var(--accent-cyan)';
+            if (isCreator) userColor = '#fbbf24';
+
+            db.ref('chat').push({
+                user: loggedInUser,
+                text: messageText,
+                color: userColor,
+                isCreator: isCreator,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            input.value = '';
+        }
+
+        function handleChatEnter(e) { if (e.key === 'Enter') sendChatMessage(); }
+
+        function setupPersonalChatGlobalListener() {
+            if (!db) return;
+            allFriends.forEach(f => {
+                if (f === loggedInUser) return;
+                const roomId = getPersonalChatRoomIdFor(loggedInUser, f);
+
+                db.ref('personal_chats/' + roomId).on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const messages = Object.values(data);
+                        if (messages.length > 0) {
+                            const lastMsg = messages[messages.length - 1];
+                            recentChatTimestamps[f] = lastMsg.timestamp || 0;
+
+                            if (activePersonalTarget !== f) {
+                                const incoming = messages.filter(m => m.user === f);
+                                unreadCounts[f] = incoming.length;
+                            }
+                        }
+                    }
+                    if (document.getElementById('step-personal-chat-list').classList.contains('active')) {
+                        renderPersonalFriendsList();
+                    }
+                });
+            });
+        }
+
+        function renderPersonalFriendsList() {
+            const container = document.getElementById('personal-friends-list');
+            let html = '';
+
+            const sortedFriends = [...allFriends].filter(f => f !== loggedInUser).sort((a, b) => {
+                const timeA = recentChatTimestamps[a] || 0;
+                const timeB = recentChatTimestamps[b] || 0;
+                return timeB - timeA;
+            });
+
+            sortedFriends.forEach(f => {
+                const logo = userProfiles[f] ? userProfiles[f].logo : '';
+                const unread = unreadCounts[f] || 0;
+                const hasRecent = recentChatTimestamps[f] ? true : false;
+
+                html += `
+                    <div class="personal-chat-item" onclick="startPersonalChat('${escapeHTML(f)}')">
+                        <div style="display:flex; align-items:center;">
+                            ${logo ? `<img src="${logo}" class="avatar-thumb" style="width:40px; height:40px;">` : `<div class="avatar-thumb" style="width:40px; height:40px; background:#334155; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem;">Logo</div>`}
+                            <div style="font-weight:700; font-size:1rem; margin-left:10px;">
+                                ${escapeHTML(f)}
+                                ${hasRecent ? '<span class="green-online-dot" title="Active message thread"></span>' : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center;">
+                            ${unread > 0 ? `<span class="unread-badge">${unread} new</span>` : ''}
+                            <span style="color:var(--accent-cyan); margin-left:10px;">Chat →</span>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function startPersonalChat(friendName) {
+            activePersonalTarget = friendName;
+            unreadCounts[friendName] = 0;
+            document.getElementById('pchat-target-name').innerText = friendName;
+            const logo = userProfiles[friendName] ? userProfiles[friendName].logo : '';
+            const avatarBox = document.getElementById('pchat-target-avatar');
+            if (logo) {
+                avatarBox.innerHTML = `<img src="${logo}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+            } else {
+                avatarBox.innerText = friendName[0];
+            }
+
+            navigateTo('step-personal-chat-room');
+            listenToPersonalMessages();
+        }
+
+        function getPersonalChatRoomIdFor(userA, userB) {
+            const users = [userA, userB].sort();
+            return `pchat_${users[0]}_${users[1]}`;
+        }
+
+        function getPersonalChatRoomId() {
+            return getPersonalChatRoomIdFor(loggedInUser, activePersonalTarget);
+        }
+
+        function listenToPersonalMessages() {
+            if (!db || !activePersonalTarget) return;
+            const roomId = getPersonalChatRoomId();
+
+            db.ref('personal_chats/' + roomId).on('value', (snapshot) => {
+                const container = document.getElementById('personal-chat-messages');
+                const data = snapshot.val();
+                if (!data) {
+                    container.innerHTML = `<div style="font-size:0.85rem; color:var(--text-secondary); text-align:center; padding-top:20px;">Private chat started with ${escapeHTML(activePersonalTarget)}.</div>`;
+                    return;
+                }
+
+                let html = '';
+                Object.entries(data).forEach(([key, m]) => {
+                    const isMine = m.user === loggedInUser;
+                    const dateObj = new Date(m.timestamp);
+                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    html += `
+                        <div class="chat-msg ${isMine ? 'mine' : 'others'}" oncontextmenu="event.preventDefault(); deletePersonalMessage('${key}')" title="Hold/Right-click to delete">
+                            <div>${escapeHTML(m.text)}</div>
+                            <span class="chat-msg-time">${timeStr}</span>
+                        </div>`;
+                });
+                container.innerHTML = html;
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        function sendPersonalMessage() {
+            const input = document.getElementById('personal-chat-input');
+            const messageText = input.value.trim();
+            if (!messageText || !db || !activePersonalTarget) return;
+
+            const roomId = getPersonalChatRoomId();
+            db.ref('personal_chats/' + roomId).push({
+                user: loggedInUser,
+                text: messageText,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            input.value = '';
+        }
+
+        function handlePersonalChatEnter(e) { if (e.key === 'Enter') sendPersonalMessage(); }
+
+        function deletePersonalMessage(msgKey) {
+            if (confirm("Delete this message for everyone?")) {
+                const roomId = getPersonalChatRoomId();
+                db.ref(`personal_chats/${roomId}/${msgKey}`).remove();
+            }
+        }
+
+        function togglePoll(pollId) {
+            const poll = document.getElementById(pollId);
+            if (poll) poll.classList.toggle('active');
+        }
+
+        function castHeadboyVote(choice) {
+            if (!db) return;
+            db.ref('polls/headboy/' + loggedInUser).set(choice);
+        }
+
+        function castRankerVote(rank) {
+            if (!db) return;
+            db.ref('polls/rankers/' + loggedInUser).set(rank);
+        }
+
+        function listenToPollResults() {
+            if (!db) return;
+
+            db.ref('polls/headboy').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                let yes = 0, no = 0;
+                Object.values(data).forEach(val => {
+                    if (val === 'Yes') yes++;
+                    if (val === 'No') no++;
+                });
+                document.getElementById('hb-yes-count').innerText = yes;
+                document.getElementById('hb-no-count').innerText = no;
+            });
+
+            db.ref('polls/rankers').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                let r1 = 0, r2 = 0, r3 = 0;
+                Object.values(data).forEach(val => {
+                    if (val === 1) r1++;
+                    if (val === 2) r2++;
+                    if (val === 3) r3++;
+                });
+                document.getElementById('ranker-1st-votes').innerText = r1 + ' votes';
+                document.getElementById('ranker-2nd-votes').innerText = r2 + ' votes';
+                document.getElementById('ranker-3rd-votes').innerText = r3 + ' votes';
+            });
+
+            db.ref('announcements').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const container = document.getElementById('custom-announcements-list');
+                if (!data) {
+                    container.innerHTML = '';
+                    return;
+                }
+                let html = '';
+                Object.values(data).forEach(a => {
+                    html += `
+                        <div class="announcement-card">
+                            <div class="announcement-title">👑 Announcement by ${escapeHTML(a.author)}</div>
+                            <div style="font-size:0.9rem; color:#fff; margin-top:4px;">${escapeHTML(a.text)}</div>
+                        </div>`;
+                });
+                container.innerHTML = html;
+            });
+        }
+
+        function composeCreatorAnnouncement() {
+            if (!isCreator) {
+                alert("Only the Creator can compose announcements!");
+                return;
+            }
+            const input = document.getElementById('new-announcement-text');
+            const text = input.value.trim();
+            if (!text || !db) return;
+
+            db.ref('announcements').push({
+                author: "Creator",
+                text: text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            input.value = '';
+        }
+
+        function openEditProfileModal() {
+            if (!isLoggedIn) {
+                alert("Please log in first!");
+                return;
+            }
+            const profile = userProfiles[loggedInUser] || {};
+            document.getElementById('profile-bio-input').value = profile.bio || '';
+            document.getElementById('profile-privacy-input').value = profile.isPrivate ? 'private' : 'public';
+            document.getElementById('edit-profile-modal').classList.add('active');
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('edit-profile-modal').classList.remove('active');
+        }
+
+        function openCropModal(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const url = URL.createObjectURL(file);
+                const cropImg = document.getElementById('crop-target-image');
+                cropImg.src = url;
+
+                document.getElementById('crop-image-modal').classList.add('active');
+
+                if (cropper) cropper.destroy();
+
+                cropper = new Cropper(cropImg, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 0.8,
+                    restore: false,
+                    guides: false,
+                    center: true,
+                    highlight: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false
+                });
+            }
+        }
+
+        function closeCropModal() {
+            document.getElementById('crop-image-modal').classList.remove('active');
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+
+        function applyCircularCrop() {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+                croppedLogoDataUrl = canvas.toDataURL('image/png');
+                closeCropModal();
+            }
+        }
+
+        function handleProfileUpdate(e) {
+            e.preventDefault();
+            const bioText = document.getElementById('profile-bio-input').value.trim();
+            const privacyVal = document.getElementById('profile-privacy-input').value;
+            const isPrivate = (privacyVal === 'private');
+
+            const updates = { isPrivate: isPrivate };
+            if (!userProfiles[loggedInUser]) userProfiles[loggedInUser] = {};
+            userProfiles[loggedInUser].isPrivate = isPrivate;
+
+            if (croppedLogoDataUrl) {
+                userProfiles[loggedInUser].logo = croppedLogoDataUrl;
+                updates.logo = croppedLogoDataUrl;
+            }
+            if (bioText) {
+                userProfiles[loggedInUser].bio = bioText;
+                updates.bio = bioText;
+            }
+
+            if (db) {
+                db.ref('userProfiles/' + loggedInUser).update(updates);
+            }
+
+            updateDashboardProfileUI();
+            closeEditProfileModal();
+            croppedLogoDataUrl = "";
+            alert("Profile details updated successfully!");
+        }
+
+        function updateDashboardProfileUI() {
+            const avatarBox = document.getElementById('dashboard-avatar-circle');
+            const profile = userProfiles[loggedInUser];
+
+            if (profile && profile.logo) {
+                avatarBox.innerHTML = `<img src="${profile.logo}" alt="Profile Logo">`;
+            } else {
+                avatarBox.innerHTML = `<span class="profile-logo-text" id="dashboard-logo-label">no logo<br>unknown logo show</span>`;
+            }
+
+            const myFollowers = (followSystemData.followers[loggedInUser] || []).length;
+            const myFollowing = (followSystemData.following[loggedInUser] || []).length;
+            document.getElementById('dash-followers-count').innerText = myFollowers;
+            document.getElementById('dash-following-count').innerText = myFollowing;
+        }
+
+        function submitRating(stars) {
+            document.getElementById('rating-thanks').style.display = 'block';
+            if (db) {
+                db.ref('ratings/' + loggedInUser).set({ user: loggedInUser, stars: stars + " Stars ⭐" });
+            }
+        }
+
+        function listenToRatings() {
+            if (!db) return;
+            db.ref('ratings').on('value', (snapshot) => {
+                const container = document.getElementById('reviews-list-box');
+                const data = snapshot.val();
+                if (!data) {
+                    container.innerHTML = `<div style="font-size:0.85rem; color:var(--text-secondary);">No ratings yet!</div>`;
+                    return;
+                }
+                let html = '';
+                Object.values(data).forEach(r => {
+                    const isRaterCreator = r.user === "Creator";
+                    html += `
+                        <div class="review-item">
+                            <span><strong style="${isRaterCreator ? 'color:#fbbf24;' : ''}">${escapeHTML(r.user)} ${isRaterCreator ? '👑' : ''}</strong></span>
+                            <span style="color:var(--accent-gold);">${escapeHTML(r.stars)}</span>
+                        </div>`;
+                });
+                container.innerHTML = html;
+            });
+        }
+
+        function renderReelStudio() {
+            const container = document.getElementById('reel-studio-content');
+            const userPosts = userContentPosts.filter(p => p.author === loggedInUser);
+
+            if (userPosts.length === 0) {
+                container.innerHTML = `<div class="notice-box" style="background:rgba(255,255,255,0.05); color:#a1a1aa; border-color:rgba(255,255,255,0.1);">there is no video and photo post upload yet</div>`;
+                return;
+            }
+
+            let html = '';
+            userPosts.forEach(post => {
+                html += `
+                    <div class="studio-item">
+                        <div style="text-align:left;">
+                            <div style="font-weight:700; color:#fff;">${escapeHTML(post.title)}</div>
+                            <div style="font-size:0.75rem; color:#94a3b8;">${escapeHTML(post.type.toUpperCase())} • ${escapeHTML(post.desc)}</div>
+                        </div>
+                        <div style="font-weight:800; color:var(--accent-cyan); font-size:0.9rem;">👁️ ${post.views} Views</div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        const reelsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target.querySelector('video');
+                if (video) {
+                    if (entry.isIntersecting) video.play().catch(() => {});
+                    else video.pause();
+                }
+            });
+        }, { threshold: 0.6 });
+
+        function toggleReelPlay(video) {
+            if (video.paused) video.play();
+            else video.pause();
+        }
+
+        function toggleMediaInputAccept(type) {
+            const input = document.getElementById('reelVideoInput');
+            if (type === 'photo') input.accept = 'image/*';
+            else input.accept = 'video/*';
+        }
+
+        function openUploadReelModal() {
+            document.getElementById('uploadReelModal').classList.add('active');
+        }
+
+        function closeUploadReelModal() {
+            document.getElementById('uploadReelModal').classList.remove('active');
+        }
+
+        function handleReelUpload(e) {
+            e.preventDefault();
+            const mediaType = document.getElementById('reelMediaType').value;
+            const mediaFile = document.getElementById('reelVideoInput').files[0];
+            const title = document.getElementById('reelTitleInput').value.trim();
+            const desc = document.getElementById('reelDescInput').value.trim();
+            if (!mediaFile) return;
+
+            const mediaUrl = URL.createObjectURL(mediaFile);
+            const feedContainer = document.getElementById('reelsFeedContainer');
+
+            if (reelCount === 0) feedContainer.innerHTML = '';
+            reelCount++;
+
+            userContentPosts.push({
+                title: title, desc: desc, type: mediaType, author: loggedInUser,
+                views: Math.floor(Math.random() * 10) + 1
+            });
+
+            const newReel = document.createElement('div');
+            newReel.className = 'reel-card';
+
+            if (mediaType === 'photo') {
+                newReel.innerHTML = `
+                    <img src="${mediaUrl}" class="reel-img-post">
+                    <div class="reel-overlay">
+                        <div class="reel-info">
+                            <div class="reel-title">${escapeHTML(title)}</div>
+                            <div class="reel-description">${escapeHTML(desc)}</div>
+                            <div style="font-size:0.75rem; color:var(--accent-cyan); margin-top:4px;">By @${escapeHTML(loggedInUser)}</div>
+                        </div>
+                    </div>`;
+            } else {
+                newReel.innerHTML = `
+                    <video class="reel-video" loop playsinline onclick="toggleReelPlay(this)">
+                        <source src="${mediaUrl}" type="${mediaFile.type}">
+                    </video>
+                    <div class="reel-overlay">
+                        <div class="reel-info">
+                            <div class="reel-title">${escapeHTML(title)}</div>
+                            <div class="reel-description">${escapeHTML(desc)}</div>
+                            <div style="font-size:0.75rem; color:var(--accent-cyan); margin-top:4px;">By @${escapeHTML(loggedInUser)}</div>
+                        </div>
+                    </div>`;
+            }
+
+            feedContainer.appendChild(newReel);
+            if (mediaType === 'video') reelsObserver.observe(newReel);
+
+            document.querySelector('.upload-reel-form').reset();
+            closeUploadReelModal();
+            newReel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function navigateTo(targetId) {
+            if (!isLoggedIn && targetId !== 'step-home' && targetId !== 'step-verification' && targetId !== 'step-rejected' && targetId !== 'step-security-warning' && targetId !== 'step-login' && targetId !== 'step-register-phone-optional' && targetId !== 'step-register-credentials') {
+                targetId = 'step-login';
+            }
+
+            const activeCard = document.querySelector('.card.active');
+            const targetCard = document.getElementById(targetId);
+
+            if (activeCard) activeCard.classList.remove('active');
+            if (targetCard) targetCard.classList.add('active');
+
+            if (targetId === 'step-ratings-view') listenToRatings();
+            if (targetId === 'step-personal-chat-list') renderPersonalFriendsList();
+            if (targetId === 'step-reel-studio') renderReelStudio();
+            if (targetId === 'step-search-profiles') renderPendingRequests();
+        }
+
+        function updateDashboardDisplay() {
+            const welcomeHeading = document.getElementById('dashboard-welcome');
+            const userBadge = document.getElementById('dashboard-user-badge');
+
+            if (isCreator) {
+                welcomeHeading.innerText = `Welcome, Creator! 👑`;
+                welcomeHeading.classList.add('creator-heading');
+                userBadge.innerText = `● Portal Creator & Admin`;
+                userBadge.style.color = '#fbbf24';
+                document.getElementById('creator-composer-box').style.display = 'block';
+            } else {
+                welcomeHeading.innerText = `Welcome, ${loggedInUser}!`;
+                welcomeHeading.classList.remove('creator-heading');
+                userBadge.innerText = `● Authenticated Member`;
+                userBadge.style.color = '#10b981';
+                document.getElementById('creator-composer-box').style.display = 'none';
+            }
+
+            listenToRealtimeProfiles();
+            updateDashboardProfileUI();
+            setupPresenceTracking();
+            setupPersonalChatGlobalListener();
+            listenToPollResults();
+
+            document.getElementById('aryan-voice-audio').src = voiceAudioURLs[loggedInUser] || defaultAudioLink;
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('friend-name').value.trim();
+            const passwordInput = document.getElementById('friend-password').value.trim();
+            const errorMsg = document.getElementById('login-error');
+
+            errorMsg.style.display = 'none';
+            let successfulLogin = false;
+            isCreator = false;
+
+            if (nameInput.toLowerCase() === 'creator' && passwordInput === 'professional') {
+                loggedInUser = "Creator"; 
+                isCreator = true;
+                successfulLogin = true;
+            } else if (registeredUsersDatabase[nameInput] && registeredUsersDatabase[nameInput] === passwordInput) {
+                loggedInUser = nameInput;
+                successfulLogin = true;
+            } else {
+                errorMsg.style.display = 'block';
+            }
+
+            if (successfulLogin) {
+                isLoggedIn = true;
+                document.getElementById('topNavMenuBtn').classList.add('logged-in');
+                updateDashboardDisplay();
+                navigateTo('step-announcements');
+            }
+        }
+
+        listenToRealtimeProfiles();
+    </script>
+</body>
+</html>
